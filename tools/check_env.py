@@ -11,6 +11,8 @@ import subprocess
 import sys
 
 import _bootstrap  # noqa: F401
+
+LITE = "--lite" in sys.argv  # student PC: simulation + webcam only, no robot / torch
 from so101demo.config import LOG_DIR
 
 # Feetech / Waveshare 서보 보드에 흔한 USB-시리얼 칩
@@ -57,13 +59,13 @@ else:
     line("NVIDIA GPU", "WARN", "nvidia-smi 없음 (드라이버 확인)")
 
 for mod, need, hint in [
-    ("torch", True, ""),
-    ("lerobot", True, "0.3.3 권장 (GR00T N1.5 / v2 데이터셋 호환)"),
-    ("scservo_sdk", True, "pip install feetech-servo-sdk  (lerobot[feetech])"),
+    ("torch", not LITE, ""),
+    ("lerobot", not LITE, "0.3.3 권장 (GR00T N1.5 / v2 데이터셋 호환)"),
+    ("scservo_sdk", not LITE, "pip install feetech-servo-sdk  (lerobot[feetech])"),
     ("serial", True, "pyserial"),
     ("yaml", True, "pyyaml"),
     ("cv2", True, "opencv"),
-    ("mediapipe", False, "2단계에서 설치"),
+    ("mediapipe", True, "pip install mediapipe==0.10.21"),
     ("websockets", False, "4단계에서 설치"),
 ]:
     try:
@@ -98,7 +100,8 @@ try:
             cands.append({"port": p.device, "chip": chip, "serial": p.serial_number})
     report["serial_candidates"] = cands
     if len(cands) == 0:
-        line("Servo boards", "FAIL", "서보 보드로 보이는 포트 없음 (USB/전원/CH343 드라이버 확인)")
+        line("Servo boards", "WARN" if LITE else "FAIL",
+             "서보 보드로 보이는 포트 없음" + (" (연습용 PC 는 정상)" if LITE else " (USB/전원/CH343 드라이버 확인)"))
     elif len(cands) == 1:
         line("Servo boards", "WARN", f"1개 발견 {cands[0]['port']} (leader 미연결?)")
     else:

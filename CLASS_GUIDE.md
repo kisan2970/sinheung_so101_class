@@ -26,7 +26,11 @@ AI 학습 없이, 결과가 바로 보이는 두 가지 활동.
 | 6 | `python tools\hand_follow.py --setup` | 손 높이/좌우에 대응할 팔 자세 기록 (아래 2회차 참고) |
 | 7 | `hand_follow.bat` | 손을 움직이면 팔이 따라오는지, 주먹 → 그리퍼 닫힘 |
 
-로봇 없이 연습할 때는 `teach.bat practice --sim --input keys`, `hand_follow.bat --sim`을 쓰세요.
+로봇 없이 연습할 때는 `teach.bat practice --sim`, `hand_follow.bat --sim`을 쓰세요.
+학생 PC에는 가벼운 `setup_student.bat`(PyTorch 없이 약 300MB)만 설치하면 됩니다.
+
+**수업 자료:** 슬라이드 `slides/class_slides.html` (→ 다음, N 선생님 메모, F 전체화면, Ctrl+P로 PDF 저장),
+학생용 따라하기 가이드 [GUIDE.md](GUIDE.md)
 
 **준비물**
 - 큐브(3~4cm 폼 큐브나 나무 블록) 여러 개, 종이컵, 도미노

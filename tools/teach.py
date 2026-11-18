@@ -25,7 +25,7 @@ HELP = """
  │  s  지금 자세 저장          w  0.5초 기다리기 추가     u  마지막 것 지우기 │
  │  p  재생 / 멈춤             l  반복재생 켜기/끄기      + -  재생 속도      │
  │  x  두 번 누르면 전체 삭제   SPACE  비상정지           r  재개            │
- │  q  종료                                                               │
+ │  q  종료        아랫줄 숫자 1~6 = 관절 각도 (6 = 그리퍼 열림 정도)        │
  │ [hand 모드]  t  토크 끄기/켜기 (끄기 전에 팔을 꼭 잡으세요!)                │
  │ [keys 모드]  1~6 관절 선택   a / d  선택 관절 -/+   o / c  그리퍼 열기/닫기  │
  └──────────────────────────────────────────────────────────────────┘"""
@@ -62,7 +62,14 @@ def main():
     leader = None
     if mode_in == "leader":
         leader = LeaderArm(cfg)
-        leader.connect()
+        try:
+            leader.connect()
+        except Exception as e:  # noqa: BLE001
+            print(f"\n[!] leader 팔에 연결하지 못했습니다: {e}")
+            print("    - leader 팔 USB 가 꽂혀 있는지 확인하세요")
+            print("    - leader 팔 없이 하려면:  teach.bat 팀이름 --input keys")
+            print("    - 로봇 없이 연습하려면:  teach.bat 팀이름 --sim")
+            return
 
     ctl = C.ArmController(cfg, make_backend(cfg))
     ctl.start()
@@ -76,6 +83,7 @@ def main():
     sel = 0
     catch_up = True  # leader mode: approach the leader pose slowly first
     msg = ""
+    shown_msg = ""
     x_armed = 0.0
     print(HELP)
     if args.play:
@@ -165,12 +173,18 @@ def main():
                     elif mode_in == "keys":
                         ctl.set_target(jog, 1.0)
 
-                # --- status line
-                extra = f" 관절:{JOINTS[sel]}" if mode_in == "keys" and not args.play else ""
+                # --- status line: events are printed above, this line shows state + joint angles
+                if msg != shown_msg:
+                    print(f"\r{' ' * 110}\r  > {msg}")
+                    shown_msg = msg
+                cmd_now = st.commanded or {}
+                angles = " ".join(
+                    (f"[{i + 1}:{round(cmd_now.get(j, 0)):+d}]" if mode_in == "keys" and i == sel and not args.play
+                     else f"{i + 1}:{round(cmd_now.get(j, 0)):+d}") for i, j in enumerate(JOINTS))
                 torque = " 토크OFF" if st.compliant else ""
-                line = (f"[{st.state}{torque}] 자세 {prog.n_poses}개 | 속도 {player.speed:.1f}"
-                        f" | 반복 {'ON' if player.loop else 'off'} | {player.status}{extra} | {msg}")
-                print(f"\r{line[:118]:<118}", end="", flush=True)
+                line = (f"[{st.state}{torque}] 자세 {prog.n_poses}개 속도 {player.speed:.1f} "
+                        f"반복 {'ON' if player.loop else 'off'} | {player.status} | {angles}")
+                print(f"\r{line:<100}", end="", flush=True)
                 if args.play and not player.running and player.status == "완료":
                     break
                 time.sleep(0.02)

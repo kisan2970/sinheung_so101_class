@@ -29,7 +29,7 @@ AI 학습 없이, 결과가 바로 보이는 두 가지 활동.
 로봇 없이 연습할 때는 `teach.bat practice --sim`, `hand_follow.bat --sim`을 쓰세요.
 학생 PC에는 가벼운 `setup_student.bat`(PyTorch 없이 약 300MB)만 설치하면 됩니다.
 
-**수업 자료:** 슬라이드 `slides/class_slides.html` (→ 다음, N 선생님 메모, F 전체화면, Ctrl+P로 PDF 저장),
+**수업 자료:** 슬라이드 `slides/class_slides.html` (→ 다음, N 선생님 메모, F 전체화면) / PDF `slides/class_slides.pdf`,
 학생용 따라하기 가이드 [GUIDE.md](GUIDE.md)
 
 **준비물**

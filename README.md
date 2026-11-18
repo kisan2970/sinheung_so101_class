@@ -10,7 +10,8 @@ SO-101 로봇팔(LeRobot)로 하는 동아리 수업 자료입니다.
 | 자료 | 내용 |
 |---|---|
 | **[GUIDE.md](GUIDE.md)** | **따라하기 가이드** — 설치부터 미션까지 한 단계씩 |
-| [slides/class_slides.html](slides/class_slides.html) | 수업 슬라이드 (받은 폴더에서 더블클릭하면 브라우저로 열림) |
+| [slides/class_slides.pdf](slides/class_slides.pdf) | 수업 슬라이드 PDF (GitHub에서 바로 보기 / 인쇄용) |
+| [slides/class_slides.html](slides/class_slides.html) | 수업 슬라이드 발표용 (받은 폴더에서 더블클릭, `N` 키로 선생님 메모) |
 | [CLASS_GUIDE.md](CLASS_GUIDE.md) | 선생님용 수업 진행 계획 |
 | [SETUP.md](SETUP.md) | 선생님용 로봇 연결·설정 |
 

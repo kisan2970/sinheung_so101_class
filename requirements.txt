@@ -1,0 +1,5 @@
+# lerobot / torch 는 setup_windows.bat 에서 버전 고정 설치
+pyyaml>=6.0
+pyserial>=3.5
+# 손 인식 (사전학습 모델). 0.10.21 = Python 3.10~3.12, mp.solutions API 포함
+mediapipe==0.10.21

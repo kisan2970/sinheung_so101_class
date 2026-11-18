@@ -1,0 +1,84 @@
+# SO-101 전시 데모 기본 설정.
+# 현장/PC별 값(포트, 작업공간 한계, 홈 자세)은 config/local.yaml 에 자동 저장되며 이 파일을 덮어씁니다.
+# (local.yaml 은 git 에 올리지 않음)
+
+robot:
+  backend: real            # real | sim  (sim = 로봇 없이 가상 팔로 전체 데모 실행 / 백업용)
+  port: null               # 예: COM5  (tools/find_port.py 가 local.yaml 에 기록)
+  leader_port: null        # 예: COM6
+  id: demo_follower        # lerobot 캘리브레이션 파일 이름 (…/calibration/robots/so101_follower/<id>.json)
+  leader_id: demo_leader
+  control_hz: 50
+
+safety:
+  # --- 소프트웨어 제한 (제어 루프에서 매 주기 적용) ---
+  # 관절 단위: 도(deg). gripper 만 0(완전 닫힘)~100(완전 열림).
+  max_velocity:            # deg/s (또는 gripper %/s)
+    shoulder_pan: 60
+    shoulder_lift: 45
+    elbow_flex: 60
+    wrist_flex: 90
+    wrist_roll: 120
+    gripper: 150
+  max_acceleration:        # deg/s^2
+    shoulder_pan: 150
+    shoulder_lift: 100
+    elbow_flex: 150
+    wrist_flex: 250
+    wrist_roll: 300
+    gripper: 500
+  # 캘리브레이션 범위에서 양 끝을 이만큼(%) 깎아서 기계적 끝단에 닿지 않게 함
+  calib_margin_pct: 8
+  # 작업공간 한계 (deg). tools/record_limits.py 로 현장에서 기록 → local.yaml 에 저장.
+  # null 이면 캘리브레이션 범위(마진 적용)만 사용.
+  joint_limits: null
+  # 명령 대비 실제 위치 오차가 이 값(deg)을 stall_time_s 이상 넘으면
+  # "막힘/충돌"로 보고 명령을 현재 위치로 되돌려 더 밀지 않음
+  stall_error_deg: 12
+  stall_time_s: 0.4
+  # 모드 프로세스의 목표값이 이 시간 동안 안 오면 현재 자세 유지
+  target_timeout_s: 0.5
+  # 비상정지: hold_s 동안 정지 유지 후 homing_speed_scale 배속으로 홈 복귀
+  estop_hold_s: 1.5
+  homing_speed_scale: 0.35
+  # 연속 통신 오류가 이 횟수를 넘으면 재연결 시도
+  max_comm_errors: 10
+
+  # --- 하드웨어 제한 (STS3215 레지스터, 연결 시 1회 기록) ---
+  # Acceleration: 단위 100 step/s^2 (0 = 무제한, 1 step = 0.088deg). lerobot 기본값 254(최대)를 낮춤.
+  hw_acceleration: 40
+  # Goal_Velocity: step/s (0 = 최대속도). 1500 ≈ 132 deg/s
+  hw_goal_velocity: 1500
+  # Torque_Limit: 0~1000 (1000=100%). 그리퍼는 손가락 끼임 대비 낮게.
+  hw_torque_limit:
+    shoulder_pan: 1000
+    shoulder_lift: 1000
+    elbow_flex: 1000
+    wrist_flex: 800
+    wrist_roll: 800
+    gripper: 500
+  # lerobot 내장 안전장치: 한 번에 보낼 수 있는 최대 위치 변화량 (deg)
+  max_relative_target_deg: 10
+
+# 홈(대기) 자세. null 이면 시작 시 자세를 홈으로 사용. record_limits.py 에서 'h' 로 기록.
+home: null
+
+# 그리퍼 열림/닫힘 값 (0~100). 실제 팔에서 확인 후 local.yaml 에서 조정 (hand_follow.py --setup 이 기록)
+gripper:
+  open: 60
+  closed: 2
+
+# 손동작 따라하기 (tools/hand_follow.py). pose_low/high, pan_left/right 는 --setup 으로 기록.
+hand_follow:
+  camera_index: 0          # 노트북 내장 웹캠 = 보통 0. check_env.py 의 카메라 목록 참고
+  mirror: true             # 거울처럼 (내가 오른쪽으로 → 화면/로봇도 내 오른쪽)
+  pose_low: null           # 손이 화면 아래쪽일 때 팔 자세
+  pose_high: null          # 손이 화면 위쪽일 때 팔 자세
+  pan_left: null           # 손이 화면 왼쪽 끝일 때 shoulder_pan
+  pan_right: null
+  roll_range_deg: 60       # 손목 기울기 ±60° → wrist_roll ±이 값
+  roll_sign: 1             # 손목 회전 방향이 반대면 -1
+  box: [0.15, 0.85, 0.15, 0.85]   # 화면에서 사용할 영역 x0,x1,y0,y1 (가장자리는 인식 불안정)
+  lost_timeout_s: 0.7      # 손이 이 시간 이상 안 보이면 천천히 홈 복귀
+  acquire_frames: 4        # 손이 연속 이만큼 보여야 조종 시작 (오인식 방지)
+  smoothing: {min_cutoff: 1.0, beta: 0.02}
